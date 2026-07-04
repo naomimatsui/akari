@@ -67,7 +67,10 @@
     letter-spacing:0.05em;
   }
   .home-actions{
-    text-align:center;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    gap:10px;
     margin-top:16px;
   }
   .home-actions a{
@@ -79,6 +82,40 @@
     padding:8px 18px;
     border-radius:999px;
   }
+
+  /* ---------- Monthly list ---------- */
+  .month-section{margin-bottom:22px;}
+  .month-section .month-title{
+    font-size:15px;
+    font-weight:700;
+    color:var(--brown-dark);
+    margin:0 0 10px 4px;
+  }
+  .month-list{
+    background:var(--white);
+    border-radius:16px;
+    box-shadow:var(--shadow);
+    overflow:hidden;
+  }
+  .month-item{
+    display:flex;
+    align-items:center;
+    gap:14px;
+    padding:14px 18px;
+    border-bottom:1px solid var(--cream-deep);
+    cursor:pointer;
+  }
+  .month-item:last-child{border-bottom:none;}
+  .month-item:active{background:var(--cream-deep);}
+  .month-item .day{
+    font-size:14px;
+    font-weight:600;
+    color:var(--brown-dark);
+    width:44px;
+    flex-shrink:0;
+  }
+  .month-item .who{font-size:15px;color:var(--text);flex:1;}
+  .month-item .tag{font-size:12px;color:var(--text-soft);margin-left:6px;}
 
   /* ---------- List ---------- */
   #list{
@@ -556,9 +593,23 @@
     </header>
     <div id="list"></div>
     <div class="home-actions">
-      <a onclick="openImport()">📋 まとめてインポート</a>
+      <a id="link-monthly" onclick="openMonthly('birthday')">📅 月ごとの一覧</a>
+      <a id="link-import" onclick="openImport()">📋 まとめてインポート</a>
     </div>
     <button class="fab" onclick="openForm()">＋</button>
+  </div>
+
+  <!-- ============ MONTHLY LIST ============ -->
+  <div class="view" id="view-monthly">
+    <div class="topbar">
+      <button class="back" onclick="showView('view-home')">‹</button>
+      <div class="title">月ごとの一覧</div>
+    </div>
+    <div class="type-toggle">
+      <button type="button" id="monthly-birthday" onclick="setMonthlyMode('birthday')">🎂 誕生日</button>
+      <button type="button" id="monthly-deathday" onclick="setMonthlyMode('deathday')">🕯 命日</button>
+    </div>
+    <div class="section" id="monthly-list"></div>
   </div>
 
   <!-- ============ DETAIL ============ -->
@@ -716,6 +767,7 @@
   let editingId = null;
   let formPhotoData = null;
   let formType = 'person';
+  let monthlyMode = 'birthday';
 
   function save(){
     localStorage.setItem(STORAGE_KEY, JSON.stringify(memorials));
@@ -1026,6 +1078,49 @@
     const div = document.createElement('div');
     div.textContent = str;
     return div.innerHTML;
+  }
+
+  /* ---------- Monthly list ---------- */
+  function openMonthly(mode){
+    monthlyMode = mode || 'birthday';
+    renderMonthly();
+    showView('view-monthly');
+  }
+
+  function setMonthlyMode(mode){
+    monthlyMode = mode;
+    renderMonthly();
+  }
+
+  function renderMonthly(){
+    document.getElementById('monthly-birthday').classList.toggle('selected', monthlyMode==='birthday');
+    document.getElementById('monthly-deathday').classList.toggle('selected', monthlyMode==='deathday');
+
+    const field = monthlyMode === 'birthday' ? 'birthday' : 'deathday';
+    const months = Array.from({length:12}, ()=>[]);
+    memorials.forEach(m=>{
+      const val = m[field];
+      if(!val) return;
+      const d = new Date(val+'T00:00:00');
+      months[d.getMonth()].push({id:m.id, name:m.name, relation:m.relation, day:d.getDate()});
+    });
+
+    const container = document.getElementById('monthly-list');
+    let html = '';
+    months.forEach((list, idx)=>{
+      if(list.length === 0) return;
+      list.sort((a,b)=>a.day-b.day);
+      html += `<div class="month-section">
+        <div class="month-title">${idx+1}月</div>
+        <div class="month-list">
+          ${list.map(m=>`<div class="month-item" onclick="openDetail('${m.id}')">
+            <span class="day">${m.day}日</span>
+            <span class="who">${escapeHtml(m.name)}${m.relation ? ` <span class="tag">${escapeHtml(m.relation)}</span>` : ''}</span>
+          </div>`).join('')}
+        </div>
+      </div>`;
+    });
+    container.innerHTML = html || `<div class="empty-state">まだ${field==='birthday'?'誕生日':'命日'}の登録がありません。</div>`;
   }
 
   /* ---------- Import ---------- */
