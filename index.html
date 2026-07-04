@@ -1,0 +1,1088 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>AKARI（灯）- 大切な人を、忘れない。</title>
+<style>
+  :root{
+    --white:#ffffff;
+    --cream:#f8f3ea;
+    --cream-deep:#f1e9db;
+    --brown-light:#e3d3bd;
+    --brown:#b8916a;
+    --brown-dark:#7a5f47;
+    --text:#4a3f35;
+    --text-soft:#8a7c6c;
+    --shadow: 0 8px 24px rgba(122,95,71,0.12);
+    --radius: 20px;
+  }
+  *{box-sizing:border-box;}
+  html,body{
+    margin:0;padding:0;
+    font-family:-apple-system,BlinkMacSystemFont,"Hiragino Sans","Hiragino Kaku Gothic ProN","Yu Gothic",sans-serif;
+    background:var(--cream);
+    color:var(--text);
+    font-size:18px;
+    -webkit-tap-highlight-color:transparent;
+  }
+  #app{
+    max-width:480px;
+    margin:0 auto;
+    min-height:100vh;
+    background:var(--cream);
+    position:relative;
+    padding-bottom:100px;
+  }
+  .view{display:none;}
+  .view.active{display:block;}
+
+  /* ---------- Header ---------- */
+  header{
+    padding:36px 24px 20px;
+    text-align:center;
+  }
+  header .logo{
+    font-size:36px;
+    font-weight:600;
+    letter-spacing:0.15em;
+    color:var(--brown-dark);
+  }
+  header .logo span.kanji{
+    font-size:22px;
+    color:var(--brown);
+    margin-left:8px;
+    font-weight:400;
+  }
+  header .tagline{
+    margin-top:8px;
+    color:var(--text-soft);
+    font-size:15px;
+    letter-spacing:0.05em;
+  }
+  header .today-date{
+    margin-top:14px;
+    color:var(--brown);
+    font-size:13px;
+    letter-spacing:0.05em;
+  }
+  .home-actions{
+    text-align:center;
+    margin-top:16px;
+  }
+  .home-actions a{
+    display:inline-block;
+    color:var(--brown-dark);
+    font-size:13px;
+    text-decoration:none;
+    border:1px solid var(--brown-light);
+    padding:8px 18px;
+    border-radius:999px;
+  }
+
+  /* ---------- List ---------- */
+  #list{
+    padding:8px 20px 20px;
+    display:flex;
+    flex-direction:column;
+    gap:14px;
+  }
+  .card{
+    background:var(--white);
+    border-radius:var(--radius);
+    box-shadow:var(--shadow);
+    padding:16px 18px;
+    display:flex;
+    align-items:center;
+    gap:16px;
+    cursor:pointer;
+    transition:transform .15s ease;
+  }
+  .card:active{transform:scale(0.98);}
+  .card .photo{
+    width:64px;height:64px;border-radius:50%;
+    object-fit:cover;
+    background:var(--brown-light);
+    flex-shrink:0;
+    display:flex;align-items:center;justify-content:center;
+    font-size:28px;
+    color:var(--brown-dark);
+  }
+  .card .info{flex:1;min-width:0;}
+  .card .name-row{display:flex;align-items:center;gap:8px;flex-wrap:wrap;}
+  .card .name{font-size:19px;font-weight:600;color:var(--text);}
+  .card .relation{
+    font-size:12px;
+    color:var(--brown-dark);
+    background:var(--cream-deep);
+    padding:2px 10px;
+    border-radius:999px;
+    flex-shrink:0;
+  }
+  .card .birthday{font-size:13px;color:var(--text-soft);margin-top:4px;}
+  .card .sub{font-size:14px;color:var(--text-soft);margin-top:2px;}
+  .card .sub.today{color:#b3714f;font-weight:600;}
+
+  .empty-state{
+    text-align:center;
+    padding:60px 30px;
+    color:var(--text-soft);
+    line-height:1.9;
+  }
+  .empty-state .icon{font-size:44px;margin-bottom:12px;}
+
+  /* ---------- FAB ---------- */
+  .fab{
+    position:fixed;
+    left:50%;
+    transform:translateX(calc(-1 * min(240px,50vw) + 20px));
+    bottom:28px;
+    width:60px;height:60px;
+    border-radius:50%;
+    background:var(--brown-dark);
+    color:var(--white);
+    font-size:30px;
+    border:none;
+    box-shadow:0 10px 24px rgba(122,95,71,0.35);
+    display:flex;align-items:center;justify-content:center;
+    z-index:20;
+  }
+  @media (min-width:480px){
+    .fab{ left:calc(50% + 240px - 80px); transform:none; }
+  }
+
+  /* ---------- Top bar (sub pages) ---------- */
+  .topbar{
+    display:flex;align-items:center;
+    padding:20px 12px;
+    gap:8px;
+  }
+  .topbar button.back{
+    background:none;border:none;
+    font-size:22px;color:var(--brown-dark);
+    padding:8px 10px;
+    cursor:pointer;
+  }
+  .topbar .title{font-size:17px;font-weight:600;color:var(--text);}
+
+  /* ---------- Detail ---------- */
+  .detail-hero{
+    text-align:center;
+    padding:8px 24px 20px;
+  }
+  .detail-hero .photo{
+    width:140px;height:140px;border-radius:50%;
+    object-fit:cover;
+    margin:0 auto 16px;
+    background:var(--brown-light);
+    display:flex;align-items:center;justify-content:center;
+    font-size:56px;
+    color:var(--brown-dark);
+    box-shadow:var(--shadow);
+  }
+  .detail-hero .name{font-size:26px;font-weight:700;}
+  .detail-hero .relation{
+    display:inline-block;
+    margin-top:8px;
+    font-size:13px;
+    color:var(--brown-dark);
+    background:var(--cream-deep);
+    padding:4px 14px;
+    border-radius:999px;
+  }
+  .detail-hero .dates{
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    gap:4px;
+    color:var(--text-soft);
+    margin-top:6px;
+    font-size:15px;
+  }
+  .detail-hero .dates div{white-space:nowrap;}
+  .detail-hero .countdown{
+    margin-top:14px;
+    display:inline-block;
+    background:var(--white);
+    border-radius:999px;
+    padding:8px 20px;
+    font-size:14px;
+    color:var(--brown-dark);
+    box-shadow:var(--shadow);
+  }
+  .detail-hero .countdown.today{
+    background:var(--brown-dark);
+    color:var(--white);
+    font-weight:600;
+  }
+
+  .section{padding:6px 24px 24px;}
+  .section-title{
+    font-size:14px;
+    color:var(--text-soft);
+    margin-bottom:12px;
+    letter-spacing:0.05em;
+  }
+  .memo-box{
+    background:var(--white);
+    border-radius:var(--radius);
+    padding:16px 18px;
+    box-shadow:var(--shadow);
+    line-height:1.8;
+    white-space:pre-wrap;
+    color:var(--text);
+    min-height:24px;
+  }
+  .memo-box:empty::before{
+    content:"思い出はまだありません";
+    color:var(--text-soft);
+  }
+
+  /* offerings */
+  .offer-grid{
+    display:grid;
+    grid-template-columns:repeat(3,1fr);
+    gap:12px;
+  }
+  .offer-btn{
+    background:var(--white);
+    border:none;
+    border-radius:16px;
+    box-shadow:var(--shadow);
+    padding:16px 6px;
+    display:flex;flex-direction:column;align-items:center;gap:8px;
+    font-size:13px;
+    color:var(--text-soft);
+    cursor:pointer;
+    transition:transform .15s ease, background .2s ease;
+  }
+  .offer-btn .emoji{font-size:30px;}
+  .offer-btn:active{transform:scale(0.94);}
+  .offer-btn.done{
+    background:var(--cream-deep);
+    color:var(--brown-dark);
+    font-weight:600;
+  }
+  .offer-btn.pop .emoji{
+    animation:pop .5s ease;
+  }
+  @keyframes pop{
+    0%{transform:scale(1);}
+    40%{transform:scale(1.35) translateY(-6px);}
+    100%{transform:scale(1);}
+  }
+
+  .big-action{
+    display:block;
+    width:100%;
+    padding:18px;
+    border-radius:18px;
+    border:none;
+    font-size:17px;
+    font-weight:600;
+    cursor:pointer;
+    margin-bottom:12px;
+    box-shadow:var(--shadow);
+  }
+  .big-action.primary{
+    background:var(--brown-dark);
+    color:var(--white);
+  }
+  .big-action.secondary{
+    background:var(--white);
+    color:var(--brown-dark);
+  }
+
+  .link-row{
+    display:flex;
+    justify-content:center;
+    gap:28px;
+    margin-top:8px;
+    font-size:14px;
+  }
+  .link-row a{
+    color:var(--text-soft);
+    text-decoration:none;
+  }
+  .link-row a.danger{color:#b0503f;}
+
+  /* ---------- Theme song ---------- */
+  .song-title{
+    text-align:center;
+    font-size:17px;
+    font-weight:600;
+    color:var(--text);
+    margin-bottom:14px;
+  }
+  .song-links{
+    display:flex;
+    justify-content:center;
+    gap:10px;
+    flex-wrap:wrap;
+  }
+  .song-link{
+    display:flex;
+    align-items:center;
+    gap:6px;
+    background:var(--white);
+    box-shadow:var(--shadow);
+    border-radius:999px;
+    padding:10px 16px;
+    font-size:13px;
+    color:var(--brown-dark);
+    text-decoration:none;
+  }
+  .song-caption{
+    text-align:center;
+    font-size:12px;
+    color:var(--text-soft);
+    line-height:1.7;
+    margin-top:14px;
+  }
+
+  /* ---------- Import ---------- */
+  .import-hint{
+    padding:0 24px 16px;
+    color:var(--text-soft);
+    font-size:14px;
+    line-height:1.8;
+  }
+  .import-hint code{
+    background:var(--cream-deep);
+    padding:1px 6px;
+    border-radius:6px;
+    font-size:13px;
+  }
+  .import-textarea{
+    width:100%;
+    min-height:200px;
+    border:1px solid var(--brown-light);
+    background:var(--white);
+    border-radius:14px;
+    padding:14px 16px;
+    font-size:14px;
+    line-height:1.7;
+    font-family:ui-monospace,SFMono-Regular,Menlo,monospace;
+    color:var(--text);
+  }
+  .import-textarea:focus{outline:2px solid var(--brown);}
+  .import-result{
+    padding:0 24px;
+    font-size:14px;
+    color:var(--brown-dark);
+    text-align:center;
+  }
+
+  /* ---------- Form ---------- */
+  form .field{padding:0 24px 20px;}
+  .field label{
+    display:block;
+    font-size:14px;
+    color:var(--text-soft);
+    margin-bottom:8px;
+  }
+  .field input[type=text],
+  .field input[type=date],
+  .field textarea{
+    width:100%;
+    border:1px solid var(--brown-light);
+    background:var(--white);
+    border-radius:14px;
+    padding:14px 16px;
+    font-size:17px;
+    color:var(--text);
+    font-family:inherit;
+  }
+  .field textarea{min-height:110px;resize:vertical;line-height:1.7;}
+  .field input:focus, .field textarea:focus{
+    outline:2px solid var(--brown);
+  }
+
+  .photo-picker{
+    display:flex;align-items:center;gap:18px;
+    padding:0 24px 24px;
+  }
+  .photo-picker .preview{
+    width:90px;height:90px;border-radius:50%;
+    background:var(--brown-light);
+    object-fit:cover;
+    display:flex;align-items:center;justify-content:center;
+    font-size:32px;color:var(--brown-dark);
+    flex-shrink:0;
+  }
+  .photo-picker label.upload{
+    background:var(--white);
+    border:1px solid var(--brown-light);
+    padding:12px 18px;
+    border-radius:14px;
+    font-size:15px;
+    color:var(--brown-dark);
+    cursor:pointer;
+  }
+  .photo-picker input[type=file]{display:none;}
+
+  .type-toggle{
+    display:flex;
+    gap:10px;
+    padding:0 24px 24px;
+  }
+  .type-toggle button{
+    flex:1;
+    padding:14px;
+    border-radius:14px;
+    border:1px solid var(--brown-light);
+    background:var(--white);
+    font-size:15px;
+    color:var(--text-soft);
+    cursor:pointer;
+  }
+  .type-toggle button.selected{
+    background:var(--brown-dark);
+    color:var(--white);
+    border-color:var(--brown-dark);
+  }
+
+  .form-actions{padding:8px 24px 40px;}
+
+  /* ---------- Praying mode ---------- */
+  #pray-overlay{
+    position:fixed;
+    inset:0;
+    background:radial-gradient(ellipse at 50% 30%, #3a2f26 0%, #1c1712 75%);
+    z-index:100;
+    display:none;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    color:#f1e6d6;
+    text-align:center;
+    padding:24px;
+  }
+  #pray-overlay.active{display:flex;}
+  .pray-photo{
+    width:130px;height:130px;border-radius:50%;
+    object-fit:cover;
+    margin-bottom:28px;
+    box-shadow:0 0 40px rgba(255,200,120,0.25);
+    border:2px solid rgba(255,255,255,0.15);
+  }
+  .pray-photo.placeholder{
+    display:flex;align-items:center;justify-content:center;
+    font-size:48px;
+    background:rgba(255,255,255,0.08);
+  }
+  .candle{
+    font-size:52px;
+    margin-bottom:22px;
+    animation:flicker 2.6s infinite ease-in-out;
+  }
+  @keyframes flicker{
+    0%,100%{ transform:scale(1) rotate(-1deg); opacity:1; }
+    25%{ transform:scale(1.05) rotate(1deg); opacity:0.92; }
+    50%{ transform:scale(0.97) rotate(-2deg); opacity:1; }
+    75%{ transform:scale(1.04) rotate(2deg); opacity:0.95; }
+  }
+  .pray-name{font-size:20px;font-weight:600;margin-bottom:6px;letter-spacing:0.05em;}
+  .pray-text{
+    font-size:15px;
+    color:#d8c8b3;
+    letter-spacing:0.08em;
+    margin-bottom:40px;
+  }
+  #pray-overlay .close-hint{
+    position:absolute;
+    bottom:36px;
+    font-size:13px;
+    color:#a8998a;
+    letter-spacing:0.05em;
+  }
+
+  /* ---------- Family share modal ---------- */
+  .modal-backdrop{
+    position:fixed;inset:0;
+    background:rgba(74,63,53,0.45);
+    display:none;
+    align-items:flex-end;
+    z-index:90;
+  }
+  .modal-backdrop.active{display:flex;}
+  .modal-sheet{
+    background:var(--white);
+    width:100%;
+    max-width:480px;
+    margin:0 auto;
+    border-radius:24px 24px 0 0;
+    padding:28px 26px 36px;
+    text-align:center;
+  }
+  .modal-sheet .icon{font-size:36px;margin-bottom:12px;}
+  .modal-sheet h3{margin:0 0 10px;font-size:19px;color:var(--text);}
+  .modal-sheet p{color:var(--text-soft);font-size:14px;line-height:1.8;margin:0 0 22px;}
+  .modal-sheet .family-list{
+    display:flex;
+    justify-content:center;
+    gap:14px;
+    margin-bottom:24px;
+  }
+  .modal-sheet .family-list .avatar{
+    width:52px;height:52px;border-radius:50%;
+    background:var(--cream-deep);
+    display:flex;align-items:center;justify-content:center;
+    font-size:22px;
+    color:var(--brown-dark);
+  }
+  .modal-sheet button{
+    width:100%;
+    padding:16px;
+    border-radius:14px;
+    border:none;
+    background:var(--brown-dark);
+    color:var(--white);
+    font-size:16px;
+    font-weight:600;
+    cursor:pointer;
+  }
+</style>
+</head>
+<body>
+<div id="app">
+
+  <!-- ============ HOME ============ -->
+  <div class="view active" id="view-home">
+    <header>
+      <div class="logo">AKARI<span class="kanji">灯</span></div>
+      <div class="tagline">大切な人を、忘れない。</div>
+      <div class="today-date" id="today-date"></div>
+    </header>
+    <div id="list"></div>
+    <div class="home-actions">
+      <a onclick="openImport()">📋 まとめてインポート</a>
+    </div>
+    <button class="fab" onclick="openForm()">＋</button>
+  </div>
+
+  <!-- ============ DETAIL ============ -->
+  <div class="view" id="view-detail">
+    <div class="topbar">
+      <button class="back" onclick="showView('view-home')">‹</button>
+      <div class="title">メモリアル</div>
+    </div>
+    <div class="detail-hero">
+      <div class="photo" id="d-photo"></div>
+      <div class="name" id="d-name"></div>
+      <div class="relation" id="d-relation"></div>
+      <div class="dates" id="d-dates"></div>
+      <div class="countdown" id="d-countdown"></div>
+    </div>
+
+    <div class="section">
+      <div class="section-title">お供え</div>
+      <div class="offer-grid" id="offer-grid"></div>
+    </div>
+
+    <div class="section">
+      <div class="section-title">思い出</div>
+      <div class="memo-box" id="d-memo"></div>
+    </div>
+
+    <div class="section" id="song-section">
+      <div class="section-title">テーマ曲</div>
+      <div class="song-title" id="song-title"></div>
+      <div class="song-links" id="song-links"></div>
+      <div class="song-caption">タップするとApple Music／Spotify／Amazon Musicでこの曲を探せます（アプリ内に音声を保存・ダウンロードすることはできません）</div>
+    </div>
+
+    <div class="section">
+      <button class="big-action primary" onclick="startPray()">🕯 手を合わせる</button>
+      <button class="big-action secondary" onclick="openFamilyModal()">👨‍👩‍👧‍👦 家族と共有</button>
+      <div class="link-row">
+        <a onclick="openForm(currentId)">編集する</a>
+        <a class="danger" onclick="deleteMemorial()">削除する</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ FORM ============ -->
+  <div class="view" id="view-form">
+    <div class="topbar">
+      <button class="back" onclick="cancelForm()">‹</button>
+      <div class="title" id="form-title">メモリアルを追加</div>
+    </div>
+    <form id="memorial-form" onsubmit="return saveMemorial(event)">
+      <div class="photo-picker">
+        <div class="preview" id="f-preview">📷</div>
+        <label class="upload">写真を選ぶ
+          <input type="file" accept="image/*" id="f-photo-input" onchange="onPhotoChange(event)">
+        </label>
+      </div>
+
+      <div class="type-toggle">
+        <button type="button" id="type-person" onclick="setType('person')">👤 人</button>
+        <button type="button" id="type-pet" onclick="setType('pet')">🐾 ペット</button>
+      </div>
+
+      <div class="field">
+        <label>お名前</label>
+        <input type="text" id="f-name" placeholder="例）田中 太郎" required>
+      </div>
+      <div class="field">
+        <label>自分との関係性</label>
+        <input type="text" id="f-relation" placeholder="例）父、祖母、父の父の父">
+      </div>
+      <div class="field">
+        <label>誕生日</label>
+        <input type="date" id="f-birthday">
+      </div>
+      <div class="field">
+        <label>命日</label>
+        <input type="date" id="f-deathday">
+      </div>
+      <div class="field">
+        <label>思い出メモ</label>
+        <textarea id="f-memo" placeholder="大切な思い出を書いておきましょう"></textarea>
+      </div>
+      <div class="field">
+        <label>テーマ曲（曲名）</label>
+        <input type="text" id="f-song" placeholder="例）花は咲く">
+      </div>
+
+      <div class="form-actions">
+        <button type="submit" class="big-action primary">保存する</button>
+      </div>
+    </form>
+  </div>
+
+  <!-- ============ IMPORT ============ -->
+  <div class="view" id="view-import">
+    <div class="topbar">
+      <button class="back" onclick="showView('view-home')">‹</button>
+      <div class="title">まとめてインポート</div>
+    </div>
+    <div class="import-hint">
+      1行に1人分、<code>名前, 続柄, 誕生日, 命日, 曲名</code> の順で入力してください。<br>
+      Excelの表をコピーして、そのまま貼り付けることもできます。<br>
+      例）田中 花子, 祖母, 1945-05-10, 2020-07-04, 花は咲く
+    </div>
+    <div class="field">
+      <textarea class="import-textarea" id="import-text" placeholder="田中 花子, 祖母, 1945-05-10, 2020-07-04, 花は咲く"></textarea>
+    </div>
+    <div class="import-result" id="import-result"></div>
+    <div class="form-actions">
+      <button type="button" class="big-action primary" onclick="runImport()">取り込む</button>
+    </div>
+  </div>
+
+</div>
+
+<!-- ============ PRAY OVERLAY ============ -->
+<div id="pray-overlay" onclick="endPray()">
+  <div class="pray-photo placeholder" id="pray-photo">👤</div>
+  <div class="candle">🕯️</div>
+  <div class="pray-name" id="pray-name"></div>
+  <div class="pray-text">大切な人を想う時間です</div>
+  <div class="close-hint">画面をタップすると戻ります</div>
+</div>
+
+<!-- ============ FAMILY SHARE MODAL ============ -->
+<div class="modal-backdrop" id="family-modal" onclick="closeFamilyModal(event)">
+  <div class="modal-sheet" onclick="event.stopPropagation()">
+    <div class="icon">👨‍👩‍👧‍👦</div>
+    <h3>家族と共有</h3>
+    <p>離れて暮らす家族とも、同じメモリアルページを<br>いつでも見られるようにできます。</p>
+    <div class="family-list">
+      <div class="avatar">👤</div>
+      <div class="avatar">👤</div>
+      <div class="avatar">＋</div>
+    </div>
+    <button onclick="closeFamilyModal()">閉じる</button>
+  </div>
+</div>
+
+<script>
+  const STORAGE_KEY = 'akari-memorials';
+  const OFFER_KEY = 'akari-offerings';
+  const OFFERINGS = [
+    {id:'flower', emoji:'🌸', label:'花'},
+    {id:'candle', emoji:'🕯️', label:'ろうそく'},
+    {id:'incense', emoji:'🙏', label:'お線香'},
+    {id:'fruit', emoji:'🍎', label:'果物'},
+    {id:'tea', emoji:'🍵', label:'お茶'},
+    {id:'rice', emoji:'🍚', label:'ご飯'},
+  ];
+
+  let memorials = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
+  let offerings = JSON.parse(localStorage.getItem(OFFER_KEY) || '{}');
+  let currentId = null;
+  let editingId = null;
+  let formPhotoData = null;
+  let formType = 'person';
+
+  function save(){
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(memorials));
+  }
+  function saveOfferings(){
+    localStorage.setItem(OFFER_KEY, JSON.stringify(offerings));
+  }
+  function todayStr(){
+    return new Date().toISOString().slice(0,10);
+  }
+  function renderTodayDate(){
+    const week = ['日','月','火','水','木','金','土'];
+    const d = new Date();
+    document.getElementById('today-date').textContent =
+      `今日 ${d.getFullYear()}年${d.getMonth()+1}月${d.getDate()}日（${week[d.getDay()]}）`;
+  }
+
+  function showView(id){
+    document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
+    document.getElementById(id).classList.add('active');
+    window.scrollTo(0,0);
+  }
+
+  /* ---------- Home list ---------- */
+  function renderList(){
+    const list = document.getElementById('list');
+    if(memorials.length === 0){
+      list.innerHTML = `<div class="empty-state">
+        <div class="icon">🕊️</div>
+        大切な方のメモリアルページを<br>作ってみましょう。<br><br>
+        右下の「＋」から追加できます。
+      </div>`;
+      return;
+    }
+    list.innerHTML = memorials.map(m=>{
+      const info = deathInfo(m.deathday);
+      const subClass = info.isToday ? 'sub today' : 'sub';
+      const relationHtml = m.relation ? `<span class="relation">${escapeHtml(m.relation)}</span>` : '';
+      const birthdayHtml = m.birthday ? `<div class="birthday">誕生日 ${formatDate(m.birthday)}</div>` : '';
+      return `<div class="card" onclick="openDetail('${m.id}')">
+        ${photoHtml(m, 64, 28)}
+        <div class="info">
+          <div class="name-row">
+            <span class="name">${escapeHtml(m.name)}</span>
+            ${relationHtml}
+          </div>
+          ${birthdayHtml}
+          <div class="${subClass}">${info.text}</div>
+        </div>
+      </div>`;
+    }).join('');
+  }
+
+  function photoHtml(m, size, fontSize){
+    const icon = m.type === 'pet' ? '🐾' : '👤';
+    if(m.photo){
+      return `<img class="photo" src="${m.photo}" style="width:${size}px;height:${size}px;">`;
+    }
+    return `<div class="photo" style="width:${size}px;height:${size}px;font-size:${fontSize}px;">${icon}</div>`;
+  }
+
+  function deathInfo(deathday){
+    if(!deathday) return {text:'命日は未登録です', isToday:false};
+    const now = new Date();
+    now.setHours(0,0,0,0);
+    const d = new Date(deathday+'T00:00:00');
+    let next = new Date(now.getFullYear(), d.getMonth(), d.getDate());
+    if(next < now){
+      next = new Date(now.getFullYear()+1, d.getMonth(), d.getDate());
+    }
+    const diffDays = Math.round((next - now) / 86400000);
+    if(diffDays === 0){
+      return {text:'今日は命日です', isToday:true};
+    }
+    return {text:`命日まであと ${diffDays} 日`, isToday:false};
+  }
+
+  /* ---------- Detail ---------- */
+  function openDetail(id){
+    currentId = id;
+    const m = memorials.find(x=>x.id===id);
+    if(!m) return;
+
+    const photoEl = document.getElementById('d-photo');
+    photoEl.innerHTML = '';
+    if(m.photo){
+      photoEl.style.background = 'none';
+      photoEl.innerHTML = `<img src="${m.photo}" style="width:100%;height:100%;border-radius:50%;object-fit:cover;">`;
+    } else {
+      photoEl.style.background = 'var(--brown-light)';
+      photoEl.textContent = m.type === 'pet' ? '🐾' : '👤';
+    }
+
+    document.getElementById('d-name').textContent = m.name;
+    const relationEl = document.getElementById('d-relation');
+    relationEl.textContent = m.relation || '';
+    relationEl.style.display = m.relation ? 'inline-block' : 'none';
+    const datesEl = document.getElementById('d-dates');
+    datesEl.innerHTML = '';
+    if(m.birthday){
+      const el = document.createElement('div');
+      el.textContent = '誕生日 '+formatDate(m.birthday);
+      datesEl.appendChild(el);
+    }
+    if(m.deathday){
+      const el = document.createElement('div');
+      el.textContent = '命日 '+formatDate(m.deathday);
+      datesEl.appendChild(el);
+    }
+    document.getElementById('d-memo').textContent = m.memo || '';
+
+    const songSection = document.getElementById('song-section');
+    if(m.song){
+      songSection.style.display = '';
+      document.getElementById('song-title').textContent = '♪ ' + m.song;
+      document.getElementById('song-links').innerHTML = songSearchLinks(m.song);
+    } else {
+      songSection.style.display = 'none';
+    }
+
+    const info = deathInfo(m.deathday);
+    const cd = document.getElementById('d-countdown');
+    cd.textContent = info.text;
+    cd.classList.toggle('today', info.isToday);
+
+    renderOfferings(m.id);
+    showView('view-detail');
+  }
+
+  function formatDate(str){
+    const d = new Date(str+'T00:00:00');
+    return `${d.getFullYear()}年${d.getMonth()+1}月${d.getDate()}日`;
+  }
+
+  function songSearchLinks(song){
+    const q = encodeURIComponent(song);
+    const links = [
+      {label:'🎵 Apple Music', url:`https://music.apple.com/search?term=${q}`},
+      {label:'🟢 Spotify', url:`https://open.spotify.com/search/${q}`},
+      {label:'🎧 Amazon Music', url:`https://music.amazon.co.jp/search/${q}`},
+    ];
+    return links.map(l=>`<a class="song-link" href="${l.url}" target="_blank" rel="noopener">${l.label}</a>`).join('');
+  }
+
+  function renderOfferings(id){
+    const todayKey = todayStr();
+    const grid = document.getElementById('offer-grid');
+    grid.innerHTML = OFFERINGS.map(o=>{
+      const done = offerings[id] && offerings[id][o.id] === todayKey;
+      return `<button type="button" class="offer-btn ${done?'done':''}" data-oid="${o.id}" onclick="toggleOffer('${id}','${o.id}',this)">
+        <span class="emoji">${o.emoji}</span>
+        <span>${o.label}</span>
+      </button>`;
+    }).join('');
+  }
+
+  function toggleOffer(id, offerId, btn){
+    const todayKey = todayStr();
+    if(!offerings[id]) offerings[id] = {};
+    const isDone = offerings[id][offerId] === todayKey;
+    if(isDone){
+      delete offerings[id][offerId];
+    } else {
+      offerings[id][offerId] = todayKey;
+      btn.classList.add('pop');
+      setTimeout(()=>btn.classList.remove('pop'), 500);
+    }
+    saveOfferings();
+    btn.classList.toggle('done', !isDone);
+  }
+
+  function deleteMemorial(){
+    if(!confirm('このメモリアルページを削除しますか？')) return;
+    memorials = memorials.filter(m=>m.id !== currentId);
+    delete offerings[currentId];
+    save();
+    saveOfferings();
+    renderList();
+    showView('view-home');
+  }
+
+  /* ---------- Form ---------- */
+  function openForm(id){
+    editingId = id || null;
+    formPhotoData = null;
+    document.getElementById('memorial-form').reset();
+    document.getElementById('f-preview').style.backgroundImage = '';
+    document.getElementById('f-preview').textContent = '📷';
+
+    if(editingId){
+      const m = memorials.find(x=>x.id===editingId);
+      document.getElementById('form-title').textContent = 'メモリアルを編集';
+      document.getElementById('f-name').value = m.name;
+      document.getElementById('f-relation').value = m.relation || '';
+      document.getElementById('f-birthday').value = m.birthday || '';
+      document.getElementById('f-deathday').value = m.deathday || '';
+      document.getElementById('f-memo').value = m.memo || '';
+      document.getElementById('f-song').value = m.song || '';
+      formPhotoData = m.photo || null;
+      setType(m.type || 'person');
+      if(m.photo){
+        document.getElementById('f-preview').textContent = '';
+        document.getElementById('f-preview').style.backgroundImage = `url(${m.photo})`;
+        document.getElementById('f-preview').style.backgroundSize = 'cover';
+        document.getElementById('f-preview').style.backgroundPosition = 'center';
+      }
+    } else {
+      document.getElementById('form-title').textContent = 'メモリアルを追加';
+      setType('person');
+    }
+    showView('view-form');
+  }
+
+  function cancelForm(){
+    showView(editingId ? 'view-detail' : 'view-home');
+    if(editingId) openDetail(editingId);
+  }
+
+  function setType(type){
+    formType = type;
+    document.getElementById('type-person').classList.toggle('selected', type==='person');
+    document.getElementById('type-pet').classList.toggle('selected', type==='pet');
+  }
+
+  function onPhotoChange(e){
+    const file = e.target.files[0];
+    if(!file) return;
+    const reader = new FileReader();
+    reader.onload = () => {
+      formPhotoData = reader.result;
+      const preview = document.getElementById('f-preview');
+      preview.textContent = '';
+      preview.style.backgroundImage = `url(${formPhotoData})`;
+      preview.style.backgroundSize = 'cover';
+      preview.style.backgroundPosition = 'center';
+    };
+    reader.readAsDataURL(file);
+  }
+
+  function saveMemorial(e){
+    e.preventDefault();
+    const name = document.getElementById('f-name').value.trim();
+    if(!name) return false;
+
+    const data = {
+      name,
+      relation: document.getElementById('f-relation').value.trim(),
+      birthday: document.getElementById('f-birthday').value,
+      deathday: document.getElementById('f-deathday').value,
+      memo: document.getElementById('f-memo').value,
+      song: document.getElementById('f-song').value.trim(),
+      type: formType,
+      photo: formPhotoData,
+    };
+
+    if(editingId){
+      const idx = memorials.findIndex(m=>m.id===editingId);
+      memorials[idx] = {...memorials[idx], ...data};
+      save();
+      renderList();
+      openDetail(editingId);
+    } else {
+      data.id = 'm-' + Date.now();
+      memorials.push(data);
+      save();
+      renderList();
+      openDetail(data.id);
+    }
+    return false;
+  }
+
+  /* ---------- Pray mode ---------- */
+  function startPray(){
+    const m = memorials.find(x=>x.id===currentId);
+    if(!m) return;
+    const photoEl = document.getElementById('pray-photo');
+    if(m.photo){
+      photoEl.classList.remove('placeholder');
+      photoEl.style.backgroundImage = 'none';
+      photoEl.innerHTML = '';
+      photoEl.style.backgroundColor = 'transparent';
+      photoEl.outerHTML = `<img class="pray-photo" id="pray-photo" src="${m.photo}">`;
+    } else {
+      const fresh = document.createElement('div');
+      fresh.className = 'pray-photo placeholder';
+      fresh.id = 'pray-photo';
+      fresh.textContent = m.type === 'pet' ? '🐾' : '👤';
+      document.getElementById('pray-photo').replaceWith(fresh);
+    }
+    document.getElementById('pray-name').textContent = m.name;
+    document.getElementById('pray-overlay').classList.add('active');
+  }
+
+  function endPray(){
+    document.getElementById('pray-overlay').classList.remove('active');
+  }
+
+  /* ---------- Family share modal ---------- */
+  function openFamilyModal(){
+    document.getElementById('family-modal').classList.add('active');
+  }
+  function closeFamilyModal(e){
+    if(e && e.target !== e.currentTarget) return;
+    document.getElementById('family-modal').classList.remove('active');
+  }
+
+  function escapeHtml(str){
+    const div = document.createElement('div');
+    div.textContent = str;
+    return div.innerHTML;
+  }
+
+  /* ---------- Import ---------- */
+  function openImport(){
+    document.getElementById('import-text').value = '';
+    document.getElementById('import-result').textContent = '';
+    showView('view-import');
+  }
+
+  function normalizeDateStr(str){
+    if(!str) return '';
+    str = str.trim();
+    const m = str.match(/^(\d{4})[年\/\-](\d{1,2})[月\/\-](\d{1,2})日?$/);
+    if(!m) return '';
+    const y = m[1], mo = String(m[2]).padStart(2,'0'), d = String(m[3]).padStart(2,'0');
+    return `${y}-${mo}-${d}`;
+  }
+
+  function parseImportText(text){
+    const lines = text.split(/\r?\n/).map(l=>l.trim()).filter(l=>l.length>0);
+    const results = [];
+    lines.forEach((line, i)=>{
+      const cols = (line.includes('\t') ? line.split('\t') : line.split(','))
+        .map(c=>c.trim().replace(/^"|"$/g,''));
+      const [name, relation, birthday, deathday, song] = cols;
+      if(!name || name === '名前') return;
+      results.push({
+        id: 'm-' + Date.now() + '-' + i,
+        name,
+        relation: relation || '',
+        birthday: normalizeDateStr(birthday),
+        deathday: normalizeDateStr(deathday),
+        song: song || '',
+        memo: '',
+        type: 'person',
+        photo: null,
+      });
+    });
+    return results;
+  }
+
+  function runImport(){
+    const text = document.getElementById('import-text').value;
+    const items = parseImportText(text);
+    const resultEl = document.getElementById('import-result');
+    if(items.length === 0){
+      resultEl.textContent = '取り込めるデータが見つかりませんでした。';
+      return;
+    }
+    memorials = memorials.concat(items);
+    save();
+    renderList();
+    showView('view-home');
+  }
+
+  renderTodayDate();
+  renderList();
+</script>
+</body>
+</html>
