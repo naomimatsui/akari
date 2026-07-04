@@ -166,7 +166,7 @@
     color:var(--text-soft);
     line-height:1.9;
   }
-  .empty-state .icon{font-size:44px;margin-bottom:12px;}
+  .empty-state .icon{display:block;width:120px;height:120px;object-fit:contain;margin:0 auto 12px;}
 
   /* ---------- FAB ---------- */
   .fab{
@@ -796,7 +796,7 @@
     const list = document.getElementById('list');
     if(memorials.length === 0){
       list.innerHTML = `<div class="empty-state">
-        <div class="icon">🕊️</div>
+        <img class="icon" src="stitch.webp" alt="">
         大切な方のメモリアルページを<br>作ってみましょう。<br><br>
         右下の「＋」から追加できます。
       </div>`;
