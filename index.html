@@ -1195,9 +1195,19 @@
       resultEl.textContent = '取り込めるデータが見つかりませんでした。';
       return;
     }
-    memorials = memorials.concat(items);
+    const existingNames = new Set(memorials.map(m => m.name));
+    const newItems = items.filter(item => !existingNames.has(item.name));
+    const skipped = items.length - newItems.length;
+    if(newItems.length === 0){
+      resultEl.textContent = `${items.length}件はすべて登録済みのため、追加しませんでした。`;
+      return;
+    }
+    memorials = memorials.concat(newItems);
     save();
     renderList();
+    if(skipped > 0){
+      alert(`${newItems.length}件を追加しました（同じ名前が${skipped}件あったためスキップしました）`);
+    }
     showView('view-home');
   }
 
