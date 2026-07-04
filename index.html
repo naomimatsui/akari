@@ -509,9 +509,25 @@
     background:rgba(255,255,255,0.08);
   }
   .candle{
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    gap:16px;
     font-size:52px;
     margin-bottom:22px;
     animation:flicker 2.6s infinite ease-in-out;
+  }
+  .pray-close{
+    position:absolute;
+    top:24px;
+    right:24px;
+    background:rgba(255,255,255,0.12);
+    border:1px solid rgba(255,255,255,0.25);
+    color:#f1e6d6;
+    font-size:13px;
+    padding:10px 16px;
+    border-radius:999px;
+    cursor:pointer;
   }
   @keyframes flicker{
     0%,100%{ transform:scale(1) rotate(-1deg); opacity:1; }
@@ -659,7 +675,7 @@
       <button class="back" onclick="cancelForm()">‹</button>
       <div class="title" id="form-title">メモリアルを追加</div>
     </div>
-    <form id="memorial-form" onsubmit="return saveMemorial(event)">
+    <form id="memorial-form" onsubmit="return saveMemorial(event)" onkeydown="if(event.key==='Enter' && event.target.tagName==='INPUT'){event.preventDefault();}">
       <div class="photo-picker">
         <div class="preview" id="f-preview">📷</div>
         <label class="upload">写真を選ぶ
@@ -727,8 +743,9 @@
 
 <!-- ============ PRAY OVERLAY ============ -->
 <div id="pray-overlay" onclick="endPray()">
+  <button class="pray-close" onclick="event.stopPropagation(); endPray();">✕ ホームに戻る</button>
   <div class="pray-photo placeholder" id="pray-photo">👤</div>
-  <div class="candle">🕯️</div>
+  <div class="candle" id="pray-offerings">🕯️</div>
   <div class="pray-name" id="pray-name"></div>
   <div class="pray-text">大切な人を想う時間です</div>
   <div class="close-hint">画面をタップすると戻ります</div>
@@ -1058,6 +1075,14 @@
       document.getElementById('pray-photo').replaceWith(fresh);
     }
     document.getElementById('pray-name').textContent = m.name;
+
+    const todayKey = todayStr();
+    const doneToday = OFFERINGS.filter(o => offerings[m.id] && offerings[m.id][o.id] === todayKey);
+    const offeringsEl = document.getElementById('pray-offerings');
+    offeringsEl.innerHTML = doneToday.length > 0
+      ? doneToday.map(o => `<span>${o.emoji}</span>`).join('')
+      : '🕯️';
+
     document.getElementById('pray-overlay').classList.add('active');
   }
 
