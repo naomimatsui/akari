@@ -616,6 +616,7 @@
     <div class="home-actions">
       <a id="link-monthly" onclick="openMonthly('birthday')">📅 月ごとの一覧</a>
       <a id="link-import" onclick="openImport()">📋 まとめてインポート</a>
+      <a id="link-export" onclick="openExport()">📤 エクスポート</a>
     </div>
     <button class="fab" onclick="openForm()">＋</button>
   </div>
@@ -741,6 +742,22 @@
     <div class="import-result" id="import-result"></div>
     <div class="form-actions">
       <button type="button" class="big-action primary" onclick="runImport()">取り込む</button>
+    </div>
+  </div>
+
+  <!-- ============ EXPORT ============ -->
+  <div class="view" id="view-export">
+    <div class="topbar">
+      <button class="back" onclick="showView('view-home')">‹</button>
+      <div class="title">エクスポート</div>
+    </div>
+    <div class="import-hint" id="export-hint"></div>
+    <div class="field">
+      <textarea class="import-textarea" id="export-text" readonly></textarea>
+    </div>
+    <div class="form-actions">
+      <button type="button" class="big-action primary" onclick="copyExportText()">📋 コピーする</button>
+      <button type="button" class="big-action secondary" onclick="downloadExportFile()">💾 CSVファイルをダウンロード</button>
     </div>
   </div>
 
@@ -1214,6 +1231,45 @@
       alert(`${newItems.length}件を追加しました（同じ名前が${skipped}件あったためスキップしました）`);
     }
     showView('view-home');
+  }
+
+  /* ---------- Export ---------- */
+  function exportToText(){
+    return memorials.map(m => [m.name, m.relation || '', m.birthday || '', m.deathday || '', m.song || ''].join(',')).join('\n');
+  }
+
+  function openExport(){
+    document.getElementById('export-hint').textContent =
+      `今登録されている${memorials.length}件を「まとめてインポート」と同じ形式のテキストにしました。コピーするか、CSVファイルとしてダウンロードできます。`;
+    document.getElementById('export-text').value = exportToText();
+    showView('view-export');
+  }
+
+  function copyExportText(){
+    const textarea = document.getElementById('export-text');
+    textarea.select();
+    if(navigator.clipboard && navigator.clipboard.writeText){
+      navigator.clipboard.writeText(textarea.value).then(
+        () => alert('コピーしました'),
+        () => document.execCommand('copy') && alert('コピーしました')
+      );
+    } else {
+      document.execCommand('copy');
+      alert('コピーしました');
+    }
+  }
+
+  function downloadExportFile(){
+    const text = '﻿' + exportToText();
+    const blob = new Blob([text], {type:'text/csv;charset=utf-8'});
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'akari-export.csv';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
   }
 
   renderTodayDate();
