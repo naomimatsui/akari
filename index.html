@@ -88,6 +88,73 @@
     border-radius:999px;
   }
 
+  /* ---------- List toolbar (sort / bulk delete) ---------- */
+  .list-toolbar{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:10px;
+    padding:0 20px 12px;
+  }
+  .list-toolbar select{
+    border:1px solid var(--brown-light);
+    background:var(--white);
+    color:var(--text);
+    font-size:13px;
+    padding:8px 12px;
+    border-radius:999px;
+  }
+  .list-toolbar a{
+    color:var(--brown-dark);
+    font-size:13px;
+    text-decoration:none;
+    white-space:nowrap;
+  }
+  .card.selected{outline:2px solid var(--brown-dark);}
+  .select-check{
+    width:24px;height:24px;
+    border-radius:50%;
+    border:2px solid var(--brown-light);
+    flex-shrink:0;
+    display:flex;align-items:center;justify-content:center;
+    font-size:14px;
+    color:var(--white);
+  }
+  .select-check.checked{
+    background:var(--brown-dark);
+    border-color:var(--brown-dark);
+  }
+  .selection-bar{
+    display:none;
+    position:fixed;
+    left:0;right:0;bottom:0;
+    max-width:480px;
+    margin:0 auto;
+    background:var(--white);
+    box-shadow:0 -4px 16px rgba(91,107,122,0.15);
+    padding:14px 20px;
+    align-items:center;
+    justify-content:space-between;
+    gap:10px;
+    z-index:25;
+  }
+  .selection-bar.active{display:flex;}
+  .selection-bar span{font-size:14px;color:var(--text);}
+  .selection-bar button{
+    border:none;
+    border-radius:999px;
+    padding:10px 18px;
+    font-size:13px;
+    font-weight:600;
+    cursor:pointer;
+    background:var(--brown-dark);
+    color:var(--white);
+  }
+  .selection-bar button.cancel{
+    background:var(--cream-deep);
+    color:var(--text-soft);
+  }
+
   /* ---------- Monthly list ---------- */
   .month-section{margin-bottom:22px;}
   .month-section .month-title{
@@ -640,6 +707,15 @@
       <div class="tagline">大切な人を、忘れない。</div>
       <div class="today-date" id="today-date"></div>
     </header>
+    <div class="list-toolbar" id="list-toolbar">
+      <select id="sort-select" onchange="setSortMode(this.value)">
+        <option value="default">登録順</option>
+        <option value="name">名前順</option>
+        <option value="birthday">誕生日順</option>
+        <option value="deathday">命日順</option>
+      </select>
+      <a id="toggle-select-mode" onclick="toggleSelectionMode()">🗑 選択して削除</a>
+    </div>
     <div id="list"></div>
     <div class="home-actions">
       <a id="link-monthly" onclick="openMonthly('birthday')">📅 月ごとの一覧</a>
@@ -649,6 +725,11 @@
     <div class="fab-wrap">
       <div class="fab-label">登録はここ</div>
       <button class="fab" onclick="openForm()">＋</button>
+    </div>
+    <div class="selection-bar" id="selection-bar">
+      <span id="selection-count">0件選択中</span>
+      <button type="button" onclick="bulkDelete()">削除する</button>
+      <button type="button" class="cancel" onclick="toggleSelectionMode()">キャンセル</button>
     </div>
   </div>
 
@@ -838,6 +919,9 @@
   let formPhotoData = null;
   let formType = 'person';
   let monthlyMode = 'birthday';
+  let sortMode = 'default';
+  let selectionMode = false;
+  let selectedIds = new Set();
 
   function save(){
     localStorage.setItem(STORAGE_KEY, JSON.stringify(memorials));
@@ -862,9 +946,32 @@
   }
 
   /* ---------- Home list ---------- */
+  function sortMemorials(items, mode){
+    const arr = items.slice();
+    if(mode === 'name'){
+      arr.sort((a,b)=>a.name.localeCompare(b.name,'ja'));
+    } else if(mode === 'birthday' || mode === 'deathday'){
+      const key = mode;
+      arr.sort((a,b)=>{
+        if(!a[key] && !b[key]) return 0;
+        if(!a[key]) return 1;
+        if(!b[key]) return -1;
+        return a[key].localeCompare(b[key]);
+      });
+    }
+    return arr;
+  }
+
+  function setSortMode(mode){
+    sortMode = mode;
+    renderList();
+  }
+
   function renderList(){
     const list = document.getElementById('list');
+    const toolbar = document.getElementById('list-toolbar');
     if(memorials.length === 0){
+      toolbar.style.display = 'none';
       list.innerHTML = `<div class="empty-state">
         <img class="icon" src="stitch.webp" alt="">
         大切な方のメモリアルページを<br>作ってみましょう。<br><br>
@@ -872,12 +979,20 @@
       </div>`;
       return;
     }
-    list.innerHTML = memorials.map(m=>{
+    toolbar.style.display = 'flex';
+    const sorted = sortMemorials(memorials, sortMode);
+    list.innerHTML = sorted.map(m=>{
       const info = deathInfo(m.deathday);
       const subClass = info.isToday ? 'sub today' : 'sub';
       const relationHtml = m.relation ? `<span class="relation">${escapeHtml(m.relation)}</span>` : '';
       const birthdayHtml = m.birthday ? `<div class="birthday">誕生日 ${formatDate(m.birthday)}</div>` : '';
-      return `<div class="card" onclick="openDetail('${m.id}')">
+      const isSelected = selectedIds.has(m.id);
+      const checkboxHtml = selectionMode
+        ? `<div class="select-check ${isSelected ? 'checked' : ''}">${isSelected ? '✓' : ''}</div>`
+        : '';
+      const clickHandler = selectionMode ? `toggleSelect('${m.id}')` : `openDetail('${m.id}')`;
+      return `<div class="card ${isSelected ? 'selected' : ''}" onclick="${clickHandler}">
+        ${checkboxHtml}
         ${photoHtml(m, 64, 28)}
         <div class="info">
           <div class="name-row">
@@ -889,6 +1004,41 @@
         </div>
       </div>`;
     }).join('');
+    updateSelectionBar();
+  }
+
+  function toggleSelectionMode(){
+    selectionMode = !selectionMode;
+    selectedIds.clear();
+    document.getElementById('toggle-select-mode').textContent = selectionMode ? '✕ キャンセル' : '🗑 選択して削除';
+    document.getElementById('selection-bar').classList.toggle('active', selectionMode);
+    renderList();
+  }
+
+  function toggleSelect(id){
+    if(selectedIds.has(id)) selectedIds.delete(id);
+    else selectedIds.add(id);
+    renderList();
+  }
+
+  function updateSelectionBar(){
+    const bar = document.getElementById('selection-bar');
+    if(!bar) return;
+    bar.classList.toggle('active', selectionMode);
+    document.getElementById('selection-count').textContent = `${selectedIds.size}件選択中`;
+  }
+
+  function bulkDelete(){
+    if(selectedIds.size === 0) return;
+    if(!confirm(`選択した${selectedIds.size}件を削除しますか？`)) return;
+    memorials = memorials.filter(m => !selectedIds.has(m.id));
+    selectedIds.forEach(id => delete offerings[id]);
+    save();
+    saveOfferings();
+    selectionMode = false;
+    selectedIds.clear();
+    document.getElementById('toggle-select-mode').textContent = '🗑 選択して削除';
+    renderList();
   }
 
   function photoHtml(m, size, fontSize){
