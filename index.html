@@ -7,14 +7,14 @@
 <style>
   :root{
     --white:#ffffff;
-    --cream:#f8f3ea;
-    --cream-deep:#f1e9db;
-    --brown-light:#e3d3bd;
-    --brown:#b8916a;
-    --brown-dark:#7a5f47;
-    --text:#4a3f35;
-    --text-soft:#8a7c6c;
-    --shadow: 0 8px 24px rgba(122,95,71,0.12);
+    --cream:#fafaf8;
+    --cream-deep:#eef0f1;
+    --brown-light:#dde1e4;
+    --brown:#8b96a3;
+    --brown-dark:#5b6b7a;
+    --text:#33363b;
+    --text-soft:#767c83;
+    --shadow: 0 8px 24px rgba(91,107,122,0.12);
     --radius: 20px;
   }
   *{box-sizing:border-box;}
@@ -45,7 +45,7 @@
     top:0;
     background:var(--cream);
     z-index:15;
-    box-shadow:0 4px 12px rgba(122,95,71,0.06);
+    box-shadow:0 4px 12px rgba(91,107,122,0.06);
   }
   header .logo{
     font-size:36px;
@@ -163,7 +163,7 @@
   }
   .card .birthday{font-size:13px;color:var(--text-soft);margin-top:4px;}
   .card .sub{font-size:14px;color:var(--text-soft);margin-top:2px;}
-  .card .sub.today{color:#b3714f;font-weight:600;}
+  .card .sub.today{color:var(--brown-dark);font-weight:600;}
 
   .empty-state{
     text-align:center;
@@ -174,23 +174,51 @@
   .empty-state .icon{display:block;width:120px;height:120px;object-fit:contain;margin:0 auto 12px;}
 
   /* ---------- FAB ---------- */
-  .fab{
+  .fab-wrap{
     position:fixed;
     left:50%;
     transform:translateX(calc(-1 * min(240px,50vw) + 20px));
     bottom:28px;
+    z-index:20;
+  }
+  @media (min-width:480px){
+    .fab-wrap{ left:calc(50% + 240px - 80px); transform:none; }
+  }
+  .fab-label{
+    position:absolute;
+    left:50%;
+    bottom:100%;
+    transform:translateX(-50%);
+    margin-bottom:10px;
+    background:var(--brown-dark);
+    color:var(--white);
+    font-size:12px;
+    font-weight:600;
+    padding:7px 14px;
+    border-radius:999px;
+    white-space:nowrap;
+    box-shadow:var(--shadow);
+    pointer-events:none;
+  }
+  .fab-label::after{
+    content:"";
+    position:absolute;
+    top:100%;
+    left:50%;
+    transform:translateX(-50%);
+    border:5px solid transparent;
+    border-top-color:var(--brown-dark);
+  }
+  .fab{
+    position:static;
     width:60px;height:60px;
     border-radius:50%;
     background:var(--brown-dark);
     color:var(--white);
     font-size:30px;
     border:none;
-    box-shadow:0 10px 24px rgba(122,95,71,0.35);
+    box-shadow:0 10px 24px rgba(91,107,122,0.35);
     display:flex;align-items:center;justify-content:center;
-    z-index:20;
-  }
-  @media (min-width:480px){
-    .fab{ left:calc(50% + 240px - 80px); transform:none; }
   }
 
   /* ---------- Top bar (sub pages) ---------- */
@@ -490,13 +518,13 @@
   #pray-overlay{
     position:fixed;
     inset:0;
-    background:radial-gradient(ellipse at 50% 30%, #3a2f26 0%, #1c1712 75%);
+    background:radial-gradient(ellipse at 50% 30%, #2c3238 0%, #14171a 75%);
     z-index:100;
     display:none;
     flex-direction:column;
     align-items:center;
     justify-content:center;
-    color:#f1e6d6;
+    color:#ececee;
     text-align:center;
     padding:24px;
   }
@@ -528,7 +556,7 @@
     right:24px;
     background:rgba(255,255,255,0.12);
     border:1px solid rgba(255,255,255,0.25);
-    color:#f1e6d6;
+    color:#ececee;
     font-size:13px;
     padding:10px 16px;
     border-radius:999px;
@@ -543,7 +571,7 @@
   .pray-name{font-size:20px;font-weight:600;margin-bottom:6px;letter-spacing:0.05em;}
   .pray-text{
     font-size:15px;
-    color:#d8c8b3;
+    color:#b7bec6;
     letter-spacing:0.08em;
     margin-bottom:40px;
   }
@@ -551,7 +579,7 @@
     position:absolute;
     bottom:36px;
     font-size:13px;
-    color:#a8998a;
+    color:#8b939b;
     letter-spacing:0.05em;
   }
 
@@ -618,7 +646,10 @@
       <a id="link-import" onclick="openImport()">📋 まとめてインポート</a>
       <a id="link-export" onclick="openExport()">📤 エクスポート</a>
     </div>
-    <button class="fab" onclick="openForm()">＋</button>
+    <div class="fab-wrap">
+      <div class="fab-label">登録はここ</div>
+      <button class="fab" onclick="openForm()">＋</button>
+    </div>
   </div>
 
   <!-- ============ MONTHLY LIST ============ -->
