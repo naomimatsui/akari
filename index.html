@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
-<title>AKARI（灯）- 大切な人を、忘れない。</title>
+<title>AKARI（灯）- 大切な人を、いつも心に。</title>
 <style>
   :root{
     --white:#ffffff;
@@ -48,22 +48,41 @@
     box-shadow:0 4px 12px rgba(91,107,122,0.06);
   }
   header .logo{
-    font-size:36px;
-    font-weight:600;
-    letter-spacing:0.15em;
-    color:var(--brown-dark);
+    font-size:34px;
+    font-weight:400;
+    letter-spacing:0.30em;
+    text-indent:0.30em;
+    color:#6b533c;
+  }
+  header .logo .i-heart{
+    position:relative;
+    display:inline-block;
+  }
+  header .logo .i-heart::after{
+    content:"\2665";
+    position:absolute;
+    left:50%;
+    margin-left:-5px;
+    top:-3px;
+    transform:translateX(-50%);
+    font-size:11px;
+    line-height:1;
+    color:#f2a68f;
+    letter-spacing:0;
   }
   header .logo span.kanji{
-    font-size:22px;
-    color:var(--brown);
-    margin-left:8px;
+    font-size:19px;
+    color:#b08b5e;
+    margin-left:2px;
+    letter-spacing:0;
     font-weight:400;
   }
   header .tagline{
-    margin-top:8px;
-    color:var(--text-soft);
-    font-size:15px;
-    letter-spacing:0.05em;
+    margin-top:10px;
+    color:#8a7461;
+    font-size:14px;
+    letter-spacing:0.18em;
+    text-indent:0.18em;
   }
   header .today-date{
     margin-top:14px;
@@ -703,10 +722,39 @@
   <!-- ============ HOME ============ -->
   <div class="view active" id="view-home">
     <header>
-      <div class="logo">AKARI<span class="kanji">灯</span></div>
-      <div class="tagline">大切な人を、忘れない。</div>
+      <svg viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="灯り"
+           style="display:block;width:58px;height:58px;margin:0 auto 6px;">
+        <circle cx="60" cy="44" r="30" fill="#f6d9a8" opacity=".26"/>
+        <path d="M60 22c7 8 11 14 11 20a11 11 0 0 1-22 0c0-6 4-12 11-20z" fill="#e9a94e"/>
+        <path d="M60 34c3.5 4.5 5.5 7.6 5.5 10.6a5.5 5.5 0 0 1-11 0c0-3 2-6.1 5.5-10.6z" fill="#fff2d6"/>
+        <path d="M60 54v7" stroke="#8b96a3" stroke-width="3" stroke-linecap="round"/>
+        <rect x="46" y="61" width="28" height="39" rx="9" fill="#dde1e4"/>
+        <rect x="46" y="61" width="10" height="39" rx="5" fill="#eef0f1"/>
+        <ellipse cx="60" cy="102" rx="22" ry="5" fill="#8b96a3" opacity=".14"/>
+      </svg>
+      <div class="logo">AKAR<span class="i-heart">&#x0131;</span><span class="kanji">灯</span></div>
+      <div class="tagline">大切な人を、いつも心に。</div>
       <div class="today-date" id="today-date"></div>
     </header>
+    <div id="today-box" style="display:none;margin:0 20px 16px;background:#fff8ec;border:1px solid #f0d9ae;border-radius:16px;padding:16px 18px;"></div>
+    <div class="home-actions">
+      <a id="link-all" onclick="openAll()" style="border-color:#e0c69a;color:#6b533c;">👥 登録している方すべて</a>
+      <a id="link-monthly" onclick="openMonthly('birthday')">📅 月ごとの一覧</a>
+      <a id="link-import" onclick="openImport()">📋 まとめてインポート</a>
+      <a id="link-export" onclick="openExport()">📤 エクスポート</a>
+    </div>
+    <div class="fab-wrap">
+      <div class="fab-label">登録はここ</div>
+      <button class="fab" onclick="openForm()">＋</button>
+    </div>
+  </div>
+
+  <!-- ============ ALL LIST ============ -->
+  <div class="view" id="view-all">
+    <div class="topbar">
+      <button class="back" onclick="showView('view-home')">‹</button><button class="back" onclick="showView('view-home')" style="width:auto;padding:0 14px;font-size:14px;">🏠 ホーム</button>
+      <div class="title">登録している方</div>
+    </div>
     <div class="list-toolbar" id="list-toolbar">
       <select id="sort-select" onchange="setSortMode(this.value)">
         <option value="default">登録順</option>
@@ -717,11 +765,6 @@
       <a id="toggle-select-mode" onclick="toggleSelectionMode()">🗑 選択して削除</a>
     </div>
     <div id="list"></div>
-    <div class="home-actions">
-      <a id="link-monthly" onclick="openMonthly('birthday')">📅 月ごとの一覧</a>
-      <a id="link-import" onclick="openImport()">📋 まとめてインポート</a>
-      <a id="link-export" onclick="openExport()">📤 エクスポート</a>
-    </div>
     <div class="fab-wrap">
       <div class="fab-label">登録はここ</div>
       <button class="fab" onclick="openForm()">＋</button>
@@ -736,7 +779,7 @@
   <!-- ============ MONTHLY LIST ============ -->
   <div class="view" id="view-monthly">
     <div class="topbar">
-      <button class="back" onclick="showView('view-home')">‹</button>
+      <button class="back" onclick="showView('view-home')">‹</button><button class="back" onclick="showView('view-home')" style="width:auto;padding:0 14px;font-size:14px;">🏠 ホーム</button>
       <div class="title">月ごとの一覧</div>
     </div>
     <div class="type-toggle">
@@ -749,7 +792,7 @@
   <!-- ============ DETAIL ============ -->
   <div class="view" id="view-detail">
     <div class="topbar">
-      <button class="back" onclick="showView('view-home')">‹</button>
+      <button class="back" onclick="showView('view-home')">‹</button><button class="back" onclick="showView('view-home')" style="width:auto;padding:0 14px;font-size:14px;">🏠 ホーム</button>
       <div class="title">メモリアル</div>
     </div>
     <div class="detail-hero">
@@ -780,6 +823,12 @@
     <div class="section">
       <button class="big-action primary" onclick="startPray()">🕯 手を合わせる</button>
       <button class="big-action secondary" onclick="openFamilyModal()">👨‍👩‍👧‍👦 家族と共有</button>
+      <button class="big-action secondary" onclick="addToCalendar()">📅 カレンダーに登録（前日・当日に通知）</button>
+      <button class="big-action secondary" onclick="addToGoogleCalendar()">📆 Googleカレンダーに追加</button>
+      <div class="song-caption">
+        <b>📅 カレンダーに登録</b>：毎年くり返しで登録され、<b>前日の20時</b>と<b>当日の朝9時</b>に通知が入ります。通知するのはスマホのカレンダーなので、アプリを開いていなくても届きます。<br><br>
+        <b>📆 Googleカレンダー</b>：ブラウザでGoogleカレンダーが開きます。手軽ですが、<b>通知の時間は自動で入りません</b>（Googleの標準の通知になります）。前日・当日の通知がほしい場合は、上のボタンを使ってください。
+      </div>
       <div class="link-row">
         <a onclick="openForm(currentId)">編集する</a>
         <a class="danger" onclick="deleteMemorial()">削除する</a>
@@ -817,10 +866,26 @@
       <div class="field">
         <label>誕生日</label>
         <input type="date" id="f-birthday">
+        <div id="md-birthday" style="display:none;gap:10px;">
+          <select id="f-birthday-m" style="flex:1;"></select>
+          <select id="f-birthday-d" style="flex:1;"></select>
+        </div>
+        <label style="display:flex;align-items:center;gap:8px;margin-top:10px;font-size:14px;color:var(--text-soft);font-weight:400;">
+          <input type="checkbox" id="f-birthday-ny" onchange="toggleNoYear('birthday')" style="width:18px;height:18px;">
+          年がわからない
+        </label>
       </div>
       <div class="field">
         <label>命日</label>
         <input type="date" id="f-deathday">
+        <div id="md-deathday" style="display:none;gap:10px;">
+          <select id="f-deathday-m" style="flex:1;"></select>
+          <select id="f-deathday-d" style="flex:1;"></select>
+        </div>
+        <label style="display:flex;align-items:center;gap:8px;margin-top:10px;font-size:14px;color:var(--text-soft);font-weight:400;">
+          <input type="checkbox" id="f-deathday-ny" onchange="toggleNoYear('deathday')" style="width:18px;height:18px;">
+          年がわからない
+        </label>
       </div>
       <div class="field">
         <label>思い出メモ</label>
@@ -840,7 +905,7 @@
   <!-- ============ IMPORT ============ -->
   <div class="view" id="view-import">
     <div class="topbar">
-      <button class="back" onclick="showView('view-home')">‹</button>
+      <button class="back" onclick="showView('view-home')">‹</button><button class="back" onclick="showView('view-home')" style="width:auto;padding:0 14px;font-size:14px;">🏠 ホーム</button>
       <div class="title">まとめてインポート</div>
     </div>
     <div class="import-hint">
@@ -860,7 +925,7 @@
   <!-- ============ EXPORT ============ -->
   <div class="view" id="view-export">
     <div class="topbar">
-      <button class="back" onclick="showView('view-home')">‹</button>
+      <button class="back" onclick="showView('view-home')">‹</button><button class="back" onclick="showView('view-home')" style="width:auto;padding:0 14px;font-size:14px;">🏠 ホーム</button>
       <div class="title">エクスポート</div>
     </div>
     <div class="import-hint" id="export-hint"></div>
@@ -943,6 +1008,14 @@
     document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
     document.getElementById(id).classList.add('active');
     window.scrollTo(0,0);
+    if(id === 'view-home') renderTodayBox();
+  }
+
+  /* 登録している方すべて（ホームからは今日の人だけを見せるので、一覧はこちら） */
+  function openAll(){
+    if(selectionMode) toggleSelectionMode();
+    renderList();
+    showView('view-all');
   }
 
   /* ---------- Home list ---------- */
@@ -967,13 +1040,51 @@
     renderList();
   }
 
+  /* 今日が命日・誕生日の人をホームの上に出す */
+  function renderTodayBox(){
+    const box = document.getElementById('today-box');
+    if(!box) return;
+    const now = new Date();
+    const m0 = now.getMonth()+1, d0 = now.getDate();
+    const hits = [];
+    memorials.forEach(m=>{
+      const bd = parseMD(m.birthday);
+      const dd = parseMD(m.deathday);
+      if(dd && dd.m===m0 && dd.d===d0) hits.push({id:m.id, name:m.name, kind:'命日', mark:'🕯'});
+      if(bd && bd.m===m0 && bd.d===d0) hits.push({id:m.id, name:m.name, kind:'誕生日', mark:'🎂'});
+    });
+    if(hits.length === 0){
+      box.style.display = 'none';
+      box.innerHTML = '';
+      return;
+    }
+    box.style.display = 'block';
+    box.innerHTML =
+      `<div style="font-size:13px;color:#b08b5e;letter-spacing:.1em;margin-bottom:10px;">今日は</div>` +
+      hits.map(h=>`<div onclick="openDetail('${h.id}')" style="display:flex;align-items:center;gap:10px;padding:8px 0;cursor:pointer;">
+        <span style="font-size:22px;">${h.mark}</span>
+        <span style="font-size:17px;color:#5a4632;font-weight:600;">${escapeHtml(h.name)}</span>
+        <span style="font-size:14px;color:#8a7461;">さんの${h.kind}です</span>
+      </div>`).join('') +
+      `<div style="font-size:12px;color:#a8917a;margin-top:8px;">タップすると、手を合わせられます。</div>`;
+  }
+
   function renderList(){
+    renderTodayBox();
     const list = document.getElementById('list');
     const toolbar = document.getElementById('list-toolbar');
     if(memorials.length === 0){
       toolbar.style.display = 'none';
       list.innerHTML = `<div class="empty-state">
-        <img class="icon" src="stitch.webp" alt="">
+        <svg class="icon" viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="灯り">
+          <circle cx="60" cy="44" r="30" fill="#f6d9a8" opacity=".26"/>
+          <path d="M60 22c7 8 11 14 11 20a11 11 0 0 1-22 0c0-6 4-12 11-20z" fill="#e9a94e"/>
+          <path d="M60 34c3.5 4.5 5.5 7.6 5.5 10.6a5.5 5.5 0 0 1-11 0c0-3 2-6.1 5.5-10.6z" fill="#fff2d6"/>
+          <path d="M60 54v7" stroke="#8b96a3" stroke-width="3" stroke-linecap="round"/>
+          <rect x="46" y="61" width="28" height="39" rx="9" fill="#dde1e4"/>
+          <rect x="46" y="61" width="10" height="39" rx="5" fill="#eef0f1"/>
+          <ellipse cx="60" cy="102" rx="22" ry="5" fill="#8b96a3" opacity=".14"/>
+        </svg>
         大切な方のメモリアルページを<br>作ってみましょう。<br><br>
         右下の「＋」から追加できます。
       </div>`;
@@ -1053,10 +1164,11 @@
     if(!deathday) return {text:'命日は未登録です', isToday:false};
     const now = new Date();
     now.setHours(0,0,0,0);
-    const d = new Date(deathday+'T00:00:00');
-    let next = new Date(now.getFullYear(), d.getMonth(), d.getDate());
+    const v = parseMD(deathday);
+    if(!v) return {text:'命日は未登録です', isToday:false};
+    let next = new Date(now.getFullYear(), v.m-1, v.d);
     if(next < now){
-      next = new Date(now.getFullYear()+1, d.getMonth(), d.getDate());
+      next = new Date(now.getFullYear()+1, v.m-1, v.d);
     }
     const diffDays = Math.round((next - now) / 86400000);
     if(diffDays === 0){
@@ -1117,9 +1229,74 @@
     showView('view-detail');
   }
 
+  /* 日付は2種類を許す：'YYYY-MM-DD'（年あり） / '--MM-DD'（年がわからない） */
+  function parseMD(str){
+    if(!str) return null;
+    const s = String(str);
+    if(s.startsWith('--')){
+      const p = s.slice(2).split('-');
+      if(p.length < 2) return null;
+      return {hasYear:false, y:null, m:parseInt(p[0],10), d:parseInt(p[1],10)};
+    }
+    const p = s.split('-');
+    if(p.length < 3) return null;
+    return {hasYear:true, y:parseInt(p[0],10), m:parseInt(p[1],10), d:parseInt(p[2],10)};
+  }
+
   function formatDate(str){
-    const d = new Date(str+'T00:00:00');
-    return `${d.getFullYear()}年${d.getMonth()+1}月${d.getDate()}日`;
+    const v = parseMD(str);
+    if(!v) return '';
+    return v.hasYear ? `${v.y}年${v.m}月${v.d}日` : `${v.m}月${v.d}日`;
+  }
+
+  function fillMDSelects(kind){
+    const ms = document.getElementById('f-'+kind+'-m');
+    const ds = document.getElementById('f-'+kind+'-d');
+    if(ms && !ms.options.length){
+      let h = '<option value="">月</option>';
+      for(let i=1;i<=12;i++) h += `<option value="${i}">${i}月</option>`;
+      ms.innerHTML = h;
+    }
+    if(ds && !ds.options.length){
+      let h = '<option value="">日</option>';
+      for(let i=1;i<=31;i++) h += `<option value="${i}">${i}日</option>`;
+      ds.innerHTML = h;
+    }
+  }
+
+  function toggleNoYear(kind){
+    fillMDSelects(kind);
+    const on = document.getElementById('f-'+kind+'-ny').checked;
+    document.getElementById('f-'+kind).style.display = on ? 'none' : '';
+    document.getElementById('md-'+kind).style.display = on ? 'flex' : 'none';
+  }
+
+  function setDateField(kind, value){
+    fillMDSelects(kind);
+    const v = parseMD(value);
+    const ny = document.getElementById('f-'+kind+'-ny');
+    if(v && !v.hasYear){
+      ny.checked = true;
+      document.getElementById('f-'+kind).value = '';
+      document.getElementById('f-'+kind+'-m').value = String(v.m);
+      document.getElementById('f-'+kind+'-d').value = String(v.d);
+    } else {
+      ny.checked = false;
+      document.getElementById('f-'+kind).value = value || '';
+      document.getElementById('f-'+kind+'-m').value = '';
+      document.getElementById('f-'+kind+'-d').value = '';
+    }
+    toggleNoYear(kind);
+  }
+
+  function getDateField(kind){
+    if(document.getElementById('f-'+kind+'-ny').checked){
+      const m = document.getElementById('f-'+kind+'-m').value;
+      const d = document.getElementById('f-'+kind+'-d').value;
+      if(!m || !d) return '';
+      return '--' + String(m).padStart(2,'0') + '-' + String(d).padStart(2,'0');
+    }
+    return document.getElementById('f-'+kind).value;
   }
 
   function songSearchLinks(song){
@@ -1182,8 +1359,8 @@
       document.getElementById('form-title').textContent = 'メモリアルを編集';
       document.getElementById('f-name').value = m.name;
       document.getElementById('f-relation').value = m.relation || '';
-      document.getElementById('f-birthday').value = m.birthday || '';
-      document.getElementById('f-deathday').value = m.deathday || '';
+      setDateField('birthday', m.birthday || '');
+      setDateField('deathday', m.deathday || '');
       document.getElementById('f-memo').value = m.memo || '';
       document.getElementById('f-song').value = m.song || '';
       formPhotoData = m.photo || null;
@@ -1196,6 +1373,8 @@
       }
     } else {
       document.getElementById('form-title').textContent = 'メモリアルを追加';
+      setDateField('birthday', '');
+      setDateField('deathday', '');
       setType('person');
     }
     showView('view-form');
@@ -1235,8 +1414,8 @@
     const data = {
       name,
       relation: document.getElementById('f-relation').value.trim(),
-      birthday: document.getElementById('f-birthday').value,
-      deathday: document.getElementById('f-deathday').value,
+      birthday: getDateField('birthday'),
+      deathday: getDateField('deathday'),
       memo: document.getElementById('f-memo').value,
       song: document.getElementById('f-song').value.trim(),
       type: formType,
@@ -1302,6 +1481,107 @@
     document.getElementById('family-modal').classList.remove('active');
   }
 
+  /* ---------- カレンダー登録（.ics） ---------- */
+
+  function icsEscape(s){
+    return String(s||'').replace(/\\/g,'\\\\').replace(/;/g,'\\;').replace(/,/g,'\\,').replace(/\r?\n/g,'\\n');
+  }
+
+  function icsStamp(){
+    const d = new Date();
+    const p = n => String(n).padStart(2,'0');
+    return d.getUTCFullYear()+p(d.getUTCMonth()+1)+p(d.getUTCDate())+'T'
+         + p(d.getUTCHours())+p(d.getUTCMinutes())+p(d.getUTCSeconds())+'Z';
+  }
+
+  /* 年がわからない日付でも、今年の日付として登録する（毎年くり返すので支障なし） */
+  function icsYmd(dateStr){
+    const v = parseMD(dateStr);
+    if(!v) return null;
+    const y = v.hasYear ? v.y : new Date().getFullYear();
+    const p = n => String(n).padStart(2,'0');
+    return String(y)+p(v.m)+p(v.d);
+  }
+
+  function icsEvent(uid, dateStr, summary){
+    const ymd = icsYmd(dateStr);
+    if(!ymd) return [];
+    return [
+      'BEGIN:VEVENT',
+      'UID:'+uid,
+      'DTSTAMP:'+icsStamp(),
+      'DTSTART:'+ymd+'T090000',
+      'DTEND:'+ymd+'T093000',
+      'RRULE:FREQ=YEARLY',
+      'SUMMARY:'+icsEscape(summary),
+      'BEGIN:VALARM',
+      'ACTION:DISPLAY',
+      'TRIGGER:-PT13H',
+      'DESCRIPTION:'+icsEscape('明日は '+summary),
+      'END:VALARM',
+      'BEGIN:VALARM',
+      'ACTION:DISPLAY',
+      'TRIGGER:PT0S',
+      'DESCRIPTION:'+icsEscape('今日は '+summary),
+      'END:VALARM',
+      'END:VEVENT'
+    ];
+  }
+
+  function addToCalendar(){
+    const m = memorials.find(x=>x.id===currentId);
+    if(!m) return;
+    if(!m.deathday && !m.birthday){
+      alert('命日か誕生日を登録すると、カレンダーに追加できます。');
+      return;
+    }
+    let lines = ['BEGIN:VCALENDAR','VERSION:2.0','PRODID:-//AKARI//memorial//JP','CALSCALE:GREGORIAN','METHOD:PUBLISH'];
+    if(m.deathday) lines = lines.concat(icsEvent(m.id+'-deathday@akari', m.deathday, m.name+' の命日'));
+    if(m.birthday) lines = lines.concat(icsEvent(m.id+'-birthday@akari', m.birthday, m.name+' の誕生日'));
+    lines.push('END:VCALENDAR');
+    const text = lines.join('\r\n')+'\r\n';
+    const safeName = String(m.name||'memorial').replace(/[\\/:*?"<>|]/g,'_');
+    const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
+
+    if(isIOS){
+      window.location.href = 'data:text/calendar;charset=utf-8,'+encodeURIComponent(text);
+      return;
+    }
+    const blob = new Blob([text], {type:'text/calendar;charset=utf-8'});
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'AKARI_'+safeName+'.ics';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    setTimeout(()=>URL.revokeObjectURL(url), 1000);
+  }
+
+  /* Googleカレンダー（ブラウザで開く方式）
+     ⚠️ Googleの仕様上、URLから通知時刻を指定できない。通知が要るときは .ics を使う */
+  function addToGoogleCalendar(){
+    const m = memorials.find(x=>x.id===currentId);
+    if(!m) return;
+    const target = m.deathday || m.birthday;
+    if(!target){
+      alert('命日か誕生日を登録すると、カレンダーに追加できます。');
+      return;
+    }
+    const label = m.deathday ? (m.name+' の命日') : (m.name+' の誕生日');
+    const ymd = icsYmd(target);
+    if(!ymd) return;
+    const p2 = n => String(n).padStart(2,'0');
+    const nd = new Date(Number(ymd.slice(0,4)), Number(ymd.slice(4,6))-1, Number(ymd.slice(6,8))+1);
+    const next = String(nd.getFullYear())+p2(nd.getMonth()+1)+p2(nd.getDate());
+    const url = 'https://calendar.google.com/calendar/render?action=TEMPLATE'
+      + '&text=' + encodeURIComponent(label)
+      + '&dates=' + ymd + '/' + next
+      + '&recur=' + encodeURIComponent('RRULE:FREQ=YEARLY')
+      + '&details=' + encodeURIComponent('AKARI（灯）から登録');
+    window.open(url, '_blank', 'noopener');
+  }
+
   function escapeHtml(str){
     const div = document.createElement('div');
     div.textContent = str;
@@ -1329,8 +1609,9 @@
     memorials.forEach(m=>{
       const val = m[field];
       if(!val) return;
-      const d = new Date(val+'T00:00:00');
-      months[d.getMonth()].push({id:m.id, name:m.name, relation:m.relation, day:d.getDate()});
+      const v = parseMD(val);
+      if(!v) return;
+      months[v.m-1].push({id:m.id, name:m.name, relation:m.relation, day:v.d});
     });
 
     const container = document.getElementById('monthly-list');
