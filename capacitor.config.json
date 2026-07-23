@@ -1,0 +1,13 @@
+{
+  "appId": "com.adonis.akari",
+  "appName": "AKARI",
+  "webDir": "www",
+  "backgroundColor": "#fff8ec",
+  "ios": {
+    "contentInset": "always",
+    "backgroundColor": "#fff8ec"
+  },
+  "android": {
+    "backgroundColor": "#fff8ec"
+  }
+}
