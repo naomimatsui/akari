@@ -1745,8 +1745,19 @@
   function isNativeApp(){
     return !!(window.Capacitor && typeof window.Capacitor.isNativePlatform === 'function' && window.Capacitor.isNativePlatform());
   }
+  let _LN = null;
   function localNotif(){
-    return (window.Capacitor && window.Capacitor.Plugins && window.Capacitor.Plugins.LocalNotifications) || null;
+    if(_LN) return _LN;
+    const C = window.Capacitor;
+    if(!C) return null;
+    /* ビルドツールなし構成での正式な取得方法（Capacitor 6） */
+    if(typeof C.registerPlugin === 'function'){
+      try{ _LN = C.registerPlugin('LocalNotifications'); }catch(e){}
+    }
+    if(!_LN && C.Plugins && C.Plugins.LocalNotifications){
+      _LN = C.Plugins.LocalNotifications;   /* 念のためのフォールバック */
+    }
+    return _LN || null;
   }
   async function initNotifications(){
     if(!isNativeApp()) return;                 /* ブラウザ版は対象外 */
@@ -1766,6 +1777,16 @@
       }
       if(perm.display === 'granted'){
         await scheduleNotifs();
+        /* ===== TEMP：動作確認用。起動5秒後にテスト通知。★App Store提出前に必ず消すこと ===== */
+        try{
+          await LN.schedule({notifications:[{
+            id: 99999,
+            title: '🏮 AKARI（テスト）',
+            body: '通知が動いています。この通知は確認用です。',
+            schedule: { at: new Date(Date.now() + 5000) }
+          }]});
+        }catch(e){}
+        /* ===== /TEMP ===== */
       }
     }catch(e){ /* 通知が使えなくてもアプリ本体は動く */ }
   }
