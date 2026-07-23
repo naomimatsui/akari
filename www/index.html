@@ -1777,16 +1777,6 @@
       }
       if(perm.display === 'granted'){
         await scheduleNotifs();
-        /* ===== TEMP：動作確認用。起動5秒後にテスト通知。★App Store提出前に必ず消すこと ===== */
-        try{
-          await LN.schedule({notifications:[{
-            id: 99999,
-            title: '🏮 AKARI（テスト）',
-            body: '通知が動いています。この通知は確認用です。',
-            schedule: { at: new Date(Date.now() + 5000) }
-          }]});
-        }catch(e){}
-        /* ===== /TEMP ===== */
       }
     }catch(e){ /* 通知が使えなくてもアプリ本体は動く */ }
   }
