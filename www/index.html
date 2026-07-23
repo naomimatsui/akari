@@ -823,11 +823,14 @@
     <div class="section">
       <button class="big-action primary" onclick="startPray()">🕯 手を合わせる</button>
       <button class="big-action secondary" onclick="openFamilyModal()">👨‍👩‍👧‍👦 家族と共有</button>
-      <button class="big-action secondary" onclick="addToCalendar()">📅 カレンダーに登録（前日・当日に通知）</button>
+      <button class="big-action secondary" id="ics-cal-btn" onclick="addToCalendar()">📅 カレンダーに登録（前日・当日に通知）</button>
       <button class="big-action secondary" onclick="addToGoogleCalendar()">📆 Googleカレンダーに追加</button>
-      <div class="song-caption">
+      <div class="song-caption" id="cal-explain">
         <b>📅 カレンダーに登録</b>：毎年くり返しで登録され、<b>前日の20時</b>と<b>当日の朝9時</b>に通知が入ります。通知するのはスマホのカレンダーなので、アプリを開いていなくても届きます。<br><br>
         <b>📆 Googleカレンダー</b>：ブラウザでGoogleカレンダーが開きます。手軽ですが、<b>通知の時間は自動で入りません</b>（Googleの標準の通知になります）。前日・当日の通知がほしい場合は、上のボタンを使ってください。
+      </div>
+      <div class="song-caption" id="native-notify-note" style="display:none;">
+        <b>🔔 通知はアプリが自動でお知らせします。</b>登録した方の<b>前日20時</b>と<b>当日9時</b>に、アプリから直接通知が届きます（カレンダー登録の操作は不要です）。
       </div>
       <div class="link-row">
         <a onclick="openForm(currentId)">編集する</a>
@@ -990,6 +993,7 @@
 
   function save(){
     localStorage.setItem(STORAGE_KEY, JSON.stringify(memorials));
+    scheduleNotifs();   /* アプリ版のみ実行（中でnativeチェック）。データが変わるたび通知を組み直す */
   }
   function saveOfferings(){
     localStorage.setItem(OFFER_KEY, JSON.stringify(offerings));
@@ -1734,8 +1738,87 @@
     URL.revokeObjectURL(url);
   }
 
+  /* ---------- ネイティブ通知（アプリ版のみ／前日20時＋当日9時・毎年くり返し） ----------
+     ・ブラウザ版では何もしない（.ics／Googleカレンダーを使う）
+     ・アプリ版では、登録した全員の命日・誕生日を端末の通知に登録する
+     ・データは端末内のみ。外部送信はしない（プライバシーポリシー通り） */
+  function isNativeApp(){
+    return !!(window.Capacitor && typeof window.Capacitor.isNativePlatform === 'function' && window.Capacitor.isNativePlatform());
+  }
+  function localNotif(){
+    return (window.Capacitor && window.Capacitor.Plugins && window.Capacitor.Plugins.LocalNotifications) || null;
+  }
+  async function initNotifications(){
+    if(!isNativeApp()) return;                 /* ブラウザ版は対象外 */
+    /* アプリ版では .ics ボタンを隠す（webviewで動かない＋アプリが自分で通知するため不要） */
+    const icsBtn = document.getElementById('ics-cal-btn');
+    if(icsBtn) icsBtn.style.display = 'none';
+    const calEx = document.getElementById('cal-explain');
+    if(calEx) calEx.style.display = 'none';
+    const note = document.getElementById('native-notify-note');
+    if(note) note.style.display = '';
+    const LN = localNotif();
+    if(!LN) return;
+    try{
+      let perm = await LN.checkPermissions();
+      if(perm.display !== 'granted'){
+        perm = await LN.requestPermissions();  /* 初回だけ許可を尋ねる＝ネイティブ機能 */
+      }
+      if(perm.display === 'granted'){
+        await scheduleNotifs();
+      }
+    }catch(e){ /* 通知が使えなくてもアプリ本体は動く */ }
+  }
+  async function scheduleNotifs(){
+    if(!isNativeApp()) return;
+    const LN = localNotif();
+    if(!LN) return;
+    try{
+      /* 既存のAKARI通知を全消しして組み直す（重複・削除済みを防ぐ） */
+      const pend = await LN.getPending();
+      if(pend && pend.notifications && pend.notifications.length){
+        await LN.cancel({notifications: pend.notifications.map(n=>({id:n.id}))});
+      }
+      const list = [];
+      let id = 1;
+      const MAX = 60;                           /* iOSは同時64件まで。安全に60で打ち切り */
+      for(const m of memorials){
+        const events = [];
+        if(m.deathday) events.push({v:parseMD(m.deathday), label:'命日'});
+        if(m.birthday) events.push({v:parseMD(m.birthday), label:'誕生日'});
+        for(const ev of events){
+          if(!ev.v || !ev.v.m || !ev.v.d) continue;
+          /* 当日 9:00（月日だけ指定＝毎年くり返し） */
+          if(id <= MAX){
+            list.push({
+              id: id++,
+              title: '🏮 AKARI',
+              body: `今日は ${m.name} さんの${ev.label}です`,
+              schedule: { on: { month: ev.v.m, day: ev.v.d, hour: 9, minute: 0 } }
+            });
+          }
+          /* 前日 20:00（前日の月日を計算） */
+          const base = new Date(2001, ev.v.m - 1, ev.v.d);  /* 平年を基準に前日を求める */
+          base.setDate(base.getDate() - 1);
+          if(id <= MAX){
+            list.push({
+              id: id++,
+              title: '🏮 AKARI',
+              body: `明日は ${m.name} さんの${ev.label}です`,
+              schedule: { on: { month: base.getMonth()+1, day: base.getDate(), hour: 20, minute: 0 } }
+            });
+          }
+        }
+      }
+      if(list.length){
+        await LN.schedule({notifications: list});
+      }
+    }catch(e){ /* 失敗してもアプリ本体は動く */ }
+  }
+
   renderTodayDate();
   renderList();
+  initNotifications();
 </script>
 </body>
 </html>
